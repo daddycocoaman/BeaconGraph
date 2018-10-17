@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body {
+                font-family: monospace, Helvetica, sans-serif;
+                background-color: #21273d;
+                text-align: center;
+            }
+
+            input[type=text], input[type=password] {
+                width: 100%;
+                padding: 12px 20px;
+                margin: 8px 0;
+                display: inline-block;
+                border: 1px solid #ccc;
+                box-sizing: border-box;
+                background-color: #152329;
+                color: white;
+                font-family: monospace, Helvetica, sans-serif;
+            }
+
+            input.loginButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 14px 20px;
+                margin: 8px 0;
+                border: none;
+                cursor: pointer;
+                width: 100%;
+            }
+
+            input.loginButton:hover {
+                opacity: 0.8;
+            }
+
+            .imgcontainer {
+                text-align: center;
+                padding-bottom: 15px;
+            }
+
+            img.avatar {
+                width: 35%;
+            }
+
+            .container {
+                padding-top: 50px;
+                padding-left: 400px;
+                padding-right: 400px;
+                align-content: center;
+
+            }
+
+            div {
+                background-color: #21273d;
+            }
+
+            label,p.label {
+                color: white;
+            }
+
+            div.slogan {
+                width: 300px;
+                color: white;
+                border-top-style: groove;                
+                border-bottom-style: groove;
+                text-align: center;
+                display: inline-block;
+                margin:0 auto;
+            }
+            div.version {
+                color: white;
+                font-size: x-small;
+            }
+
+            </style>
+    </head>
+<body>
+<div class="loginWrapper">
+    <form id="login" action= "{{ url_for('login') }}" method="POST">
+    <div class="imgcontainer">
+        <img src="{{ url_for('static', filename='images/logov0-1.png') }}" alt="Avatar" class="avatar">
+    </div>
+    <div class="container">
+        <label for="uname"><b>Username</b></label>
+        <input id="uname" type="text" placeholder="Enter Username" name="uname" required>
+
+        <label for="psw"><b>Password</b></label>
+        <input id="psw" type="password" placeholder="Enter Password" name="psw" required>
+            
+        <input type="submit" class="loginButton" value="Login">
+        <p class="label" id="error"></p>
+    </div>
+    </form>
+</div>
+</body>
+</html>
