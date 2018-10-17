@@ -11,7 +11,7 @@ BeaconGraph is an interactive tool that visualizes client and Access Point relat
 - Neo4j
 
 **Tested Platforms:** Linux<br>
-Note: OSX and Windows should be supported but not have been tested yet
+**Note**: OSX and Windows should be supported but not have been tested yet
 
 ## Acceptable CSV Formats
 - airodump-ng
@@ -25,7 +25,7 @@ Note: OSX and Windows should be supported but not have been tested yet
 `--no-flush`: Do NOT delete current database before adding new entries<br>
 `--manuf`: Update the Wireshark OUI Lookup file
 
-NOTE: The larger the neo4j database, the more time it'll take to process. During testing, some large databases (over 2000 clients and access points combined) took over 10 minutes to render on screen.
+**NOTE**: The larger the neo4j database, the more time it'll take to process. During testing, some large databases (over 2000 clients and access points combined) took over 10 minutes to render on screen.
 
 ## Screenshots
 ![Logo](examples/ui.png "BeaconGraph UI")
@@ -39,5 +39,6 @@ NOTE: The larger the neo4j database, the more time it'll take to process. During
 - Package binaries for Windows/Linux/OSX
 - Add Kismet CSV support
 
-
+## License
+This project is 100% open source. Use this code as you wish (except commercially) but please attribute to author and respect all licenses of third-party code. 
 
