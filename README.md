@@ -3,7 +3,7 @@
 <p align='center'><img src='https://raw.githubusercontent.com/daddycocoaman/BeaconGraph/master/static/images/logo400.png' alt='logo'/></p>
 
 ## Description
-BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. It is written in Python with GUI support by [pywebview](https://github.com/r0x0r/pywebview) and a [Neo4j](https://github.com/neo4j/neo4j) backend.
+BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. It is written in Python with GUI support by [pywebview](https://github.com/r0x0r/pywebview) and a [Neo4j](https://github.com/neo4j/neo4j) backend. Relationship rendering is supported by [cytoscape.js](https://github.com/cytoscape/cytoscape.js) and is served by Flask.
 
 ## Prerequisites
 
