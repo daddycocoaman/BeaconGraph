@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 **NOTE**: Ensure your pip is for python3.
 ```
 sudo apt-get install python3-pip python3-gi python-gi libwebkit2gtk-4.0-dev
-pip3 install -r requirements.txt
+pip3 install -r requirements-linux-gui.txt
 pip3 install pywebview[qt5]  
 ```
 
