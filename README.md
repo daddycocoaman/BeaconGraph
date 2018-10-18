@@ -7,11 +7,24 @@ BeaconGraph is an interactive tool that visualizes client and Access Point relat
 
 ## Prerequisites
 
-- Python >=3.6
+- Python3
 - Neo4j
 
-**Tested Platforms:** Linux<br>
-**Note**: OSX and Windows should be supported but not have been tested yet
+## Installation
+
+**Supported Platforms:** 
+- Ubuntu 18.04.1
+- Linux Mint 19
+
+
+### Linux
+**NOTE**: Ensure your pip is for python3.
+```
+sudo apt-get install python3-pip python3-gi python-gi libwebkit2gtk-4.0-dev
+pip3 install -r requirements.txt
+pip3 install pywebview[qt5]  
+```
+There are some known bugs prevent Pywebview from launching on some Debian-based platforms at the moment. However, BeaconGraph can still be accessed by pointing your browser to `http://localhost:58008`.
 
 ## Acceptable CSV Formats
 - airodump-ng
