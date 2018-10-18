@@ -12,7 +12,7 @@
             }
 
             input[type=text], input[type=password] {
-                width: 100%;
+                width: 40%;
                 padding: 12px 20px;
                 margin: 8px 0;
                 display: inline-block;
@@ -26,11 +26,14 @@
             input.loginButton {
                 background-color: #4CAF50;
                 color: white;
-                padding: 14px 20px;
+                padding: 12px 20px;
                 margin: 8px 0;
                 border: none;
                 cursor: pointer;
-                width: 100%;
+                width: 20%;
+                display: inline-block;
+                box-sizing: border-box;
+
             }
 
             input.loginButton:hover {
@@ -48,10 +51,7 @@
 
             .container {
                 padding-top: 50px;
-                padding-left: 400px;
-                padding-right: 400px;
-                align-content: center;
-
+                width: 100%;
             }
 
             div {
@@ -82,14 +82,12 @@
 <div class="loginWrapper">
     <form id="login" action= "{{ url_for('login') }}" method="POST">
     <div class="imgcontainer">
-        <img src="{{ url_for('static', filename='images/logov0-1.png') }}" alt="Avatar" class="avatar">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Avatar" class="avatar">
     </div>
     <div class="container">
-        <label for="uname"><b>Username</b></label>
-        <input id="uname" type="text" placeholder="Enter Username" name="uname" required>
+        <input id="uname" type="text" placeholder="Enter Username" name="uname" required><br>
 
-        <label for="psw"><b>Password</b></label>
-        <input id="psw" type="password" placeholder="Enter Password" name="psw" required>
+        <input id="psw" type="password" placeholder="Enter Password" name="psw" required><br>
             
         <input type="submit" class="loginButton" value="Login">
         <p class="label" id="error"></p>
