@@ -2,7 +2,6 @@ manuf==1.0.0
 pandas==0.20.1
 requests==2.14.2
 py2neo==4.1.0
-Flask==0.10.1
+Flask==0.12.3
 Flask_Login==0.4.1
 pywebview==2.1
-webview==0.1.5
