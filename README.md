@@ -24,7 +24,7 @@ sudo apt-get install python3-pip python3-gi python-gi libwebkit2gtk-4.0-dev
 pip3 install -r requirements.txt
 pip3 install pywebview[qt5]  
 ```
-There are some known bugs prevent Pywebview from launching on some Debian-based platforms at the moment. However, BeaconGraph can still be accessed by pointing your browser to `http://localhost:58008`.
+There are some known bugs preventing Pywebview from launching on some Debian-based platforms at the moment. However, BeaconGraph can still be accessed by pointing your browser to `http://localhost:58008`.
 
 ## Acceptable CSV Formats
 - airodump-ng
