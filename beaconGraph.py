@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+#v0.1.1
+
 import argparse
 import base64
 import io
@@ -6,6 +8,7 @@ import os
 import json
 import threading
 import webview
+import webbrowser
 import requests
 import pandas as pd
 from manuf import manuf
@@ -22,7 +25,7 @@ log_manager = LoginManager(app)
 FLUSH_DB = True
 CSV_FILE = ""
 MANUF_UPDATE = False
-
+GUI = False
 
 class User(UserMixin):
     def __init__(self, userId):
@@ -242,7 +245,6 @@ def add_header(r):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        print("yup")
         return render_template('index.html')
     else:
         return redirect(url_for('login'))
@@ -253,10 +255,8 @@ def login():
     if request.method == "GET":
         return render_template('login.html')
 
-    print(request.form)
     user = request.form.get("uname")
     pwd = request.form.get("psw")
-    print(user, pwd)
     try:
         graph = Graph(user=user, password=pwd)
     except:
@@ -289,7 +289,7 @@ def login():
         cpg(graph, stationDict, bssidDict)
         writeJson(graph)
 
-        return render_template('index.html')
+        return redirect(url_for('index'))
 
 
 @app.route("/export", methods=["POST"])
@@ -309,7 +309,8 @@ def export():
 
 @app.route("/fullscreen")
 def toggleFull():
-    webview.toggle_fullscreen()
+    if GUI:
+        webview.toggle_fullscreen()
     return jsonify({'result': 'ok'})
 
 #MAIN THREAD START#
@@ -322,10 +323,9 @@ def start_server():
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--no-flush", help="Do not flush the database before processing", action="store_true")
-    parser.add_argument(
-        "--manuf", help="Update the Wireshark OUI lookup file", action="store_true")
+    parser.add_argument("--no-flush", help="Do not flush the database before processing", action="store_true")
+    parser.add_argument("--manuf", help="Update the Wireshark OUI lookup file", action="store_true")
+    parser.add_argument("--gui", help="Attempt to launch app in a GUI instead of browser (may not work)", action="store_true")
     parser.add_argument("csvfile", help="Airodump-ng formatted CSV")
 
     options = parser.parse_args()
@@ -333,6 +333,8 @@ if __name__ == '__main__':
         FLUSH_DB = False
     if options.manuf:
         MANUF_UPDATE = True
+    if options.gui:
+        GUI = True
 
     t = threading.Thread(target=start_server)
     t.daemon = True
@@ -342,5 +344,16 @@ if __name__ == '__main__':
     while not url_ok(url):
         sleep(1)
 
-    webview.create_window("BEACONGRAPH", url, min_size=(
-        1030, 740), confirm_quit=True, text_select=True)
+    if GUI:
+        webview.create_window("BEACONGRAPH", url, min_size=(1030, 740), confirm_quit=True, text_select=True)
+        exit(0)
+    else:
+        webbrowser.open("http://localhost:58008", new=2)
+
+    try:
+        while True:
+            sleep(1)
+
+    except KeyboardInterrupt:
+        print("exiting")
+        exit(0)

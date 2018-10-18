@@ -5,3 +5,4 @@ pywebview==2.1
 py2neo==4.1.0
 pandas==0.20.1
 Flask==0.12.3
+webview==0.1.5
