@@ -10,7 +10,9 @@ import threading
 import webview
 import webbrowser
 import requests
+import tkinter as tk
 import pandas as pd
+from tkinter import filedialog
 from manuf import manuf
 from time import sleep
 from flask import Flask, render_template, request, jsonify, redirect, url_for
@@ -77,9 +79,8 @@ def cpg(graph, stationDict, bssidDict):
 
             if oui is None:
                 oui = "Private"
-
-        s = Node("Client", name=station, FirstTimeSeen=fts, LastTimeSeen=lts,
-                 Power=pwr, NumPackets=pkts, Association=bssid, OUI=oui)
+        
+        s = Node("Client", name=station, FirstTimeSeen=fts, LastTimeSeen=lts,Power=pwr, NumPackets=pkts, Association=bssid, OUI=oui)
         for essid in essids:
             existing = graph.nodes.match("AP", name=essid).first()
 
@@ -266,7 +267,8 @@ def login():
     login_user(neo)
     file = True
     if file:
-        tables = open("testfiles/BWIlounge-01.csv", "r").read().split("\n\n")
+        tables = open(CSV_FILE, "r").read().split("\n\n")
+        
         # Clean up AP table
         bssidData = cleanup(tables[0])
         bssidDF = pd.read_csv(io.StringIO(bssidData), header=0)
@@ -296,10 +298,15 @@ def login():
 def export():
     name = request.json['name']
     img = request.json['data']
-    save = webview.create_file_dialog(
-        dialog_type=webview.SAVE_DIALOG, save_filename=name, file_types=('PNG File (*.png)',))
-    if save[0]:
-        with open(save[0], "wb") as imgFile:
+    if GUI:
+        save = webview.create_file_dialog(dialog_type=webview.SAVE_DIALOG, save_filename=name, file_types=('PNG File (*.png)',))
+        path = save[0]
+    else:
+        root = tk.Tk()
+        root.withdraw()
+        path = filedialog.asksaveasfilename(title="Export",filetypes = (("PNG files","*.png"),))
+    if path:
+        with open(path, "wb") as imgFile:
             imgFile.write(base64.b64decode(img))
             imgFile.close()
             return jsonify({'result': 'ok'})
@@ -326,7 +333,7 @@ if __name__ == '__main__':
     parser.add_argument("--no-flush", help="Do not flush the database before processing", action="store_true")
     parser.add_argument("--manuf", help="Update the Wireshark OUI lookup file", action="store_true")
     parser.add_argument("--gui", help="Attempt to launch app in a GUI instead of browser (may not work)", action="store_true")
-    parser.add_argument("csvfile", help="Airodump-ng formatted CSV")
+    parser.add_argument("csvfile", help="Airodump-ng formatted CSV", type=argparse.FileType('r'))
 
     options = parser.parse_args()
     if options.no_flush:
@@ -335,6 +342,8 @@ if __name__ == '__main__':
         MANUF_UPDATE = True
     if options.gui:
         GUI = True
+
+    CSV_FILE = str(options.csvfile.name)
 
     t = threading.Thread(target=start_server)
     t.daemon = True
