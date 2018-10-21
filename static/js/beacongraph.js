@@ -51,14 +51,14 @@ document.addEventListener('DOMContentLoaded', function(){
                   name: 'cose-bilkent',
                   fit: 'true',
                   nodeDimensionsIncludeLabels: true,
-                  nodeRepulsion: 6000
+                  nodeRepulsion: 8000
               },
               hideEdgesOnViewport: false,
               textureOnViewport: false,
               boxSelectionEnabled: false,
               componentSpacing: 100,
-              nodeOverlap: 5,
-              idealEdgeLength: 15,
+              nodeOverlap: 50,
+              idealEdgeLength: 25,
               weaver: true
           });
 
@@ -77,41 +77,15 @@ document.addEventListener('DOMContentLoaded', function(){
           });
 
           function displayInfo(event){
-              if (cy.$(event.target || event.cyTarget).data('type') == "Client") {
-                document.getElementById("name").innerHTML = cy.$(event.target || event.cyTarget).data('name');
-                document.getElementById("oui").innerHTML = cy.$(event.target || event.cyTarget).data('oui');
-                document.getElementById("type").innerHTML = cy.$(event.target || event.cyTarget).data('type');
-                document.getElementById("auth").innerHTML = "&nbsp;";
-                document.getElementById("cipher").innerHTML = "&nbsp;";
-                document.getElementById("channel").innerHTML = "&nbsp;";
-                document.getElementById("speed").innerHTML = "&nbsp;";
-                document.getElementById("lan").innerHTML = "&nbsp;";
-              }
-              else {
-                document.getElementById("name").innerHTML = cy.$(event.target || event.cyTarget).data('name');
-                document.getElementById("oui").innerHTML = cy.$(event.target || event.cyTarget).data('oui');
-                document.getElementById("type").innerHTML = cy.$(event.target || event.cyTarget).data('type');
-                document.getElementById("auth").innerHTML = cy.$(event.target || event.cyTarget).data('auth');
-                document.getElementById("cipher").innerHTML = cy.$(event.target || event.cyTarget).data('cipher');
-                document.getElementById("channel").innerHTML = cy.$(event.target || event.cyTarget).data('channel');
-                document.getElementById("speed").innerHTML = cy.$(event.target || event.cyTarget).data('speed');
-                document.getElementById("lan").innerHTML = cy.$(event.target || event.cyTarget).data('lan');
-                if (cy.$(event.target || event.cyTarget).data('type') == "Open") {
-                    document.getElementById("auth").innerHTML = "&nbsp;";
-                    document.getElementById("cipher").innerHTML = "&nbsp;";
-                }
-                if (cy.$(event.target || event.cyTarget).data('type') == "AP") {
-                    document.getElementById("auth").innerHTML = "&nbsp;";
-                    document.getElementById("oui").innerHTML = "&nbsp;";
-                    document.getElementById("cipher").innerHTML = "&nbsp;";
-                    document.getElementById("channel").innerHTML = "&nbsp;";
-                    document.getElementById("speed").innerHTML = "&nbsp;";
-                    document.getElementById("lan").innerHTML = "&nbsp;";
-                }
-                if (cy.$(event.target || event.cyTarget).data('lan') === ""){
-                    document.getElementById("lan").innerHTML = "&nbsp;";
-                }
-              }
+                document.getElementById("name").innerHTML = cy.$(event.target || event.cyTarget).data('name') || "&nbsp;";
+                document.getElementById("bssid").innerHTML =  cy.$(event.target || event.cyTarget).data('bssid') || "&nbsp;";                             
+                document.getElementById("oui").innerHTML = cy.$(event.target || event.cyTarget).data('oui') || "&nbsp;";
+                document.getElementById("type").innerHTML = cy.$(event.target || event.cyTarget).data('type') || "&nbsp;";
+                document.getElementById("auth").innerHTML = cy.$(event.target || event.cyTarget).data('auth') || "&nbsp;";
+                document.getElementById("cipher").innerHTML = cy.$(event.target || event.cyTarget).data('cipher') || "&nbsp;";
+                document.getElementById("channel").innerHTML = cy.$(event.target || event.cyTarget).data('channel') || "&nbsp;";
+                document.getElementById("speed").innerHTML = cy.$(event.target || event.cyTarget).data('speed') || "&nbsp;";
+                document.getElementById("lan").innerHTML = cy.$(event.target || event.cyTarget).data('lan') || "&nbsp;";
           }
 
           var api = cy.viewUtilities({

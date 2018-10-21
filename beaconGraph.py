@@ -1,10 +1,11 @@
-#!/usr/bin/env python
-#v0.1.1
+#!/usr/bin/env python3
+#v0.2
 
 import argparse
 import base64
 import io
 import os
+import getpass
 import json
 import threading
 import webview
@@ -25,9 +26,10 @@ app.secret_key = os.urandom(32)
 log_manager = LoginManager(app)
 
 FLUSH_DB = True
-CSV_FILE = ""
 MANUF_UPDATE = False
 GUI = False
+AIRO_FILE = ""
+
 
 class User(UserMixin):
     def __init__(self, userId):
@@ -59,7 +61,44 @@ def cleanup(data, station=False):
 
 def cpg(graph, stationDict, bssidDict):
 
+    #Add all of the Access Points discovered
     mac = manuf.MacParser(update=MANUF_UPDATE)
+    for entry in bssidDict:
+        bssid = entry['BSSID']
+        essid = entry['ESSID']
+        speed = entry['Speed']
+        channel = entry['channel']
+        auth = entry['Authentication']
+        cipher = entry['Cipher']
+        lan = entry["LAN IP"].replace(" ", "")
+        priv = entry["Privacy"]
+
+        if lan == "0.0.0.0":
+            lan = ""
+
+        if len(essid) == 0:
+            essid = bssid
+        
+        try:
+            oui = mac.get_comment(bssid)
+        except:
+            oui = mac.get_manuf(bssid)
+        if oui is None:
+            oui = "Private"
+        
+        if "WPA2" in priv:
+            b = Node("WPA2", name=essid, bssid=bssid, OUI=oui, Encryption="WPA2", speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
+        elif "WPA" in priv:
+            b = Node("WPA", name=essid, bssid=bssid, OUI=oui, Encryption="WPA", speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
+        elif "WEP" in priv:
+            b = Node("WEP", name=essid, bssid=bssid, OUI=oui, Encryption="WEP", speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
+        elif "OPN" in priv:
+            b = Node("Open", name=essid, bssid=bssid, OUI=oui, Encryption="None", speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
+        else:
+            b = Node("AP", name=essid, bssid=bssid, OUI=oui, Encryption="None", speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
+
+        graph.create(b)
+    #Parse list of clients and add probe relations
     for item in stationDict:
         essids = item['Probed ESSIDs'].split(",")
         station = item['Station MAC']
@@ -72,17 +111,19 @@ def cpg(graph, stationDict, bssidDict):
         else:
             bssid = None
 
-            try:
-                oui = mac.get_comment(station)
-            except:
-                oui = mac.get_manuf(station)
+        try:
+            oui = mac.get_comment(station)
+        except:
+            oui = mac.get_manuf(station)
+        if oui is None:
+            oui = "Private"
 
-            if oui is None:
-                oui = "Private"
-        
         s = Node("Client", name=station, FirstTimeSeen=fts, LastTimeSeen=lts,Power=pwr, NumPackets=pkts, Association=bssid, OUI=oui)
         for essid in essids:
-            existing = graph.nodes.match("AP", name=essid).first()
+            for label in ["AP", "Open", "WEP", "WPA", "WPA2"]: 
+                existing = graph.nodes.match(label, name=essid).first()
+                if existing is not None:
+                    break
 
             if len(essid) > 0:
                 if existing is not None:
@@ -94,60 +135,50 @@ def cpg(graph, stationDict, bssidDict):
 
         # AP Additions per Client
         if bssid is not None:
-            ap = (i for i in bssidDict if i['BSSID'] == bssid)
-            entry = next(ap)
-            essid = entry['ESSID']
-            speed = entry['Speed']
-            channel = entry['channel']
-            auth = entry['Authentication']
-            cipher = entry['Cipher']
-            lan = entry["LAN IP"].replace(" ", "")
-            if lan == "0.0.0.0":
-                lan = ""
-
-            if len(essid) == 0:
-                essid = bssid
-
-            # Get the OUIs for APs, if available
-            try:
-                oui = mac.get_comment(bssid)
-            except:
-                oui = mac.get_manuf(bssid)
-            if oui is None:
-                oui = "Private"
-
             # If AP already exists by name, use existing node. Else create new.
-            existing = graph.nodes.match("AP", name=essid).first()
-            if existing is not None:
-                b = existing
-            else:
-                priv = entry["Privacy"]
-                if "WPA2" in priv:
-                    b = Node("WPA2", name=essid, OUI=oui, Encryption="WPA2",
-                             speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
-                elif "WPA" in priv:
-                    b = Node("WPA", name=essid, OUI=oui, Encryption="WPA",
-                             speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
-                elif "WEP" in priv:
-                    b = Node("WEP", name=essid, OUI=oui, Encryption="WEP",
-                             speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
-                elif "OPN" in priv:
-                    b = Node("Open", name=essid, OUI=oui, Encryption="None",
-                             speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
+            b = None
+            for label in ["AP", "Open", "WEP", "WPA", "WPA2"]:
+                existing = graph.nodes.match(label, bssid=bssid).first()
+                if existing is not None:
+                    b = existing
+                    break
                 else:
-                    b = Node("AP", name=essid, OUI=oui, Encryption="None",
-                             speed=speed, channel=channel, auth=auth, cipher=cipher, lan=lan)
+                    b = Node("AP", bssid=bssid)
 
             probeSb = Relationship(s, "Probes", b)
             sb = Relationship(s, "AssociatedTo", b)
-            graph.delete(probeSb)
             graph.create(sb)
 
+def parseAirodump(graph):
+    tables = open(AIRO_FILE, "r").read().split("\n\n")
+        
+    # Clean up AP table
+    bssidData = cleanup(tables[0])
+    bssidDF = pd.read_csv(io.StringIO(bssidData), header=0)
+
+    # Clean up client tables
+    stationData = cleanup(tables[1], station=True)
+    stationDF = pd.read_csv(io.StringIO(stationData), quotechar="|", header=0)
+
+    # Change N/A to empty strings. Create dictionaries.
+    bssidDF.fillna("", inplace=True)
+    stationDF.fillna("", inplace=True)
+    bssidDict = bssidDF.to_dict(orient='records')
+    stationDict = stationDF.to_dict(orient='records')
+
+    ##########GRAPH SETUP###############
+    if FLUSH_DB:
+        graph.delete_all()
+
+    cpg(graph, stationDict, bssidDict)
+    writeJson(graph)
 
 def writeJson(graph):
     # Pull database and write to JSON
     dbfile = open("static/db.json", "w")
-    query = graph.run('''MATCH (a)-[r]->(b)
+
+    #Find all nodes with relationships
+    relations = graph.run('''MATCH (a)-[r]->(b)
     WITH
     {
         id: toString(id(a)) + toString(id(b)),
@@ -171,6 +202,7 @@ def writeJson(graph):
         name: b.name,
         type: labels(b),
         oui: b.OUI,
+        bssid: b.bssid,
         channel: toString(b.channel),
         speed: toString(b.speed),
         auth: b.auth,
@@ -180,11 +212,30 @@ def writeJson(graph):
     AS aps
     RETURN {nodes: collect(distinct clients) + collect(distinct aps), edges: collect(distinct edges)}
     ''').data()
+    relationJSON = relations[0].pop("{nodes: collect(distinct clients) + collect(distinct aps), edges: collect(distinct edges)}")
+    
+    noRelations = graph.run('''match (b) where not (b)--() WITH
+    {
+        id: id(b),
+        name: b.name,
+        type: labels(b),
+        oui: b.OUI,
+        bssid: b.bssid,
+        channel: toString(b.channel),
+        speed: toString(b.speed),
+        auth: b.auth,
+        cipher: b.cipher,
+        lan: b.lan
+    }
+    AS aps
+    RETURN {nodes: collect(distinct aps) }''').data()
+    noRelationJSON = noRelations[0].pop("{nodes: collect(distinct aps) }")
+
+    #Merge node relations from both results
+    graphDict = {k:v + relationJSON[k] for k,v in noRelationJSON.items()}
+    graphJSON = {**relationJSON, **graphDict}
 
     # Settings for different node types
-    graphJSON = {}
-    graphJSON = query[0].pop(
-        "{nodes: collect(distinct clients) + collect(distinct aps), edges: collect(distinct edges)}")
     for idx, node in enumerate(graphJSON['nodes']):
         graphJSON['nodes'][idx] = {"data": node,
                                    "selected": 'false', "group": "nodes"}
@@ -213,7 +264,7 @@ def writeJson(graph):
                 'line-color': "yellow", 'line-style': 'dashed'}
         if edge['name'] == "AssociatedTo":
             graphJSON['edges'][idx]['style'] = {
-                'line-color': "red", 'width': 6}
+                'line-color': "red", 'width': 6}   
 
     data = json.dumps(graphJSON, indent=4)
     dbfile.write(data)
@@ -265,33 +316,10 @@ def login():
 
     neo = User(1)
     login_user(neo)
-    file = True
-    if file:
-        tables = open(CSV_FILE, "r").read().split("\n\n")
-        
-        # Clean up AP table
-        bssidData = cleanup(tables[0])
-        bssidDF = pd.read_csv(io.StringIO(bssidData), header=0)
+    if AIRO_FILE:
+        parseAirodump(graph)
 
-        # Clean up client tables
-        stationData = cleanup(tables[1], station=True)
-        stationDF = pd.read_csv(io.StringIO(
-            stationData), quotechar="|", header=0)
-
-        # Change N/A to empty strings. Create dictionaries.
-        bssidDF.fillna("", inplace=True)
-        stationDF.fillna("", inplace=True)
-        bssidDict = bssidDF.to_dict(orient='records')
-        stationDict = stationDF.to_dict(orient='records')
-
-        ##########GRAPH SETUP###############
-        if FLUSH_DB:
-            graph.delete_all()
-
-        cpg(graph, stationDict, bssidDict)
-        writeJson(graph)
-
-        return redirect(url_for('index'))
+    return redirect(url_for('index'))
 
 
 @app.route("/export", methods=["POST"])
@@ -333,7 +361,8 @@ if __name__ == '__main__':
     parser.add_argument("--no-flush", help="Do not flush the database before processing", action="store_true")
     parser.add_argument("--manuf", help="Update the Wireshark OUI lookup file", action="store_true")
     parser.add_argument("--gui", help="Attempt to launch app in a GUI instead of browser (may not work)", action="store_true")
-    parser.add_argument("csvfile", help="Airodump-ng formatted CSV", type=argparse.FileType('r'))
+    parser.add_argument("--airodump-csv", "-a", help="Airodump-ng formatted CSV", type=argparse.FileType('r'), metavar='')
+    parser.add_argument("--parse",help="Parse CSV into neo4j without launching app", action="store_true")
 
     options = parser.parse_args()
     if options.no_flush:
@@ -342,8 +371,20 @@ if __name__ == '__main__':
         MANUF_UPDATE = True
     if options.gui:
         GUI = True
-
-    CSV_FILE = str(options.csvfile.name)
+    if options.airodump_csv:
+        AIRO_FILE = str(options.airodump_csv.name)
+    
+    if options.parse:
+        if AIRO_FILE:
+            user = input('Username: ')
+            pwd = getpass.getpass(prompt='Password: ', stream=None) 
+            graph = Graph(user=user, password=pwd)
+            parseAirodump(graph)
+            print ("Successfully processed %s" % AIRO_FILE)
+            exit(0)
+        else:
+            print ("Please specify a CSV file to parse!\n")
+            exit(0)
 
     t = threading.Thread(target=start_server)
     t.daemon = True

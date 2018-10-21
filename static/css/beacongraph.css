@@ -114,8 +114,8 @@ div.wrapper {
 }
 
 img.logo {
-    max-width: 80%;
-    max-height: 80%;
+    max-width: 50%;
+    max-height: 50%;
 }
 
 .toolbar {
@@ -190,7 +190,8 @@ input {
     background-color: black;
     font-family:monospace;
     width: 100%;
-    resize: none;    
+    resize: none;
+    text-align: center;    
 }
 
 .button {

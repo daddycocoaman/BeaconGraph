@@ -8,12 +8,6 @@
     <div class="wrapper" id="wrapper">
         <div class="cy" id="cy">
                 <div id="loader" class="loader"></div>
-            <script src="{{ url_for('static', filename='js/cytoscape.min.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/cytoscape-view-utilities.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/cytoscape-cose-bilkent.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/cytoscape-context-menus.js') }}"></script>
-            <script src="{{ url_for('static', filename='js/beacongraph.js') }}"></script>
         </div>
         <div class="toolbar" id="toolbar">
             <div class="toolbar-title"><img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" </div>
@@ -61,6 +55,7 @@
             <div>
                 <p class='header'>NAME</p>
                 <p class='data' id="name">&nbsp;</p>
+                <p class='data' id="bssid">&nbsp;</p>
             </div>
             <div>
                     <p class='header'>OUI</p>
@@ -114,5 +109,11 @@
                 document.getElementById("legend-drop").classList.toggle("show");
             }         
     </script>
+    <script src="{{ url_for('static', filename='js/cytoscape.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cytoscape-view-utilities.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cytoscape-cose-bilkent.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cytoscape-context-menus.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/beacongraph.js') }}"></script>
   </body>
 </html>

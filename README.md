@@ -1,4 +1,4 @@
-# BEACONGRAPH (v0.1.1)
+# BEACONGRAPH (v0.2)
 
 <p align='center'><img src='https://raw.githubusercontent.com/daddycocoaman/BeaconGraph/master/static/images/logo400.png' alt='logo'/></p>
 
@@ -7,7 +7,7 @@ BeaconGraph is an interactive tool that visualizes client and Access Point relat
 
 ## Prerequisites
 
-- Python3
+- Python >= 3.5
 - Neo4j
 
 ## Installation
