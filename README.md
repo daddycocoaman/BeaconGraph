@@ -44,10 +44,9 @@ _If you recieve GTK/QT errors when attempting to launch with GUI, BeaconGraph ca
 
 `--no-flush`: Do NOT delete current database before adding new entries<br>
 `--manuf`: Update the Wireshark OUI Lookup file<br>
-`--gui`: Attempt to launch app in a GUI instead of browser (may not work)
-
-`--parse`: Parse CSV files into neo4j database without launching app
-`-a` or `--airodump-csv`: Airodump-ng formatted CSV
+`--gui`: Attempt to launch app in a GUI instead of browser (may not work)<br>
+`--parse`: Parse CSV files into neo4j database without launching app<br>
+`-a` or `--airodump-csv`: Airodump-ng formatted CSV<br>
 
 ## Screenshots
 ![Logo](examples/ui.png "BeaconGraph UI")
