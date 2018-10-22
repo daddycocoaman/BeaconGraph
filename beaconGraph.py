@@ -244,10 +244,10 @@ def writeJson(graph):
         if node['type'] == "Client":
             graphJSON['nodes'][idx]['style'] = {'background-color': "#00e600"}
         elif node['type'] == "Open":
-            graphJSON['nodes'][idx]['style'] = {'background-color': "#fefefe"}
+            graphJSON['nodes'][idx]['style'] = {'background-color': "#e6e6e6"}
         elif node['type'] == "WEP":
             graphJSON['nodes'][idx]['style'] = {
-                'background-color': "#fefefe", 'border-color': '00e600'}
+                'background-color': "#e6e6e6", 'border-color': '#d00303', 'border-width': 6}
         elif node['type'] == "WPA":
             graphJSON['nodes'][idx]['style'] = {'background-color': "#1b4ae4"}
         elif node['type'] == "WPA2":

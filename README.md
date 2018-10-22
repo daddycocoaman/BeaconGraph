@@ -5,6 +5,8 @@
 ## Description
 BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. It is written in Python with GUI support by [pywebview](https://github.com/r0x0r/pywebview) and a [Neo4j](https://github.com/neo4j/neo4j) backend. Relationship rendering is supported by [cytoscape.js](https://github.com/cytoscape/cytoscape.js) and is served by Flask.
 
+[BeaconGraph v0.2 Write-Up](https://daddycocoaman.com/2018/10/22/beacongraph-v0-2-released/)
+
 ## Prerequisites
 
 - Python >= 3.5
@@ -44,7 +46,8 @@ _If you recieve GTK/QT errors when attempting to launch with GUI, BeaconGraph ca
 `--manuf`: Update the Wireshark OUI Lookup file<br>
 `--gui`: Attempt to launch app in a GUI instead of browser (may not work)
 
-**NOTE**: The larger the neo4j database, the more time it'll take to process. During testing, some large databases (over 2000 clients and access points combined) took over 10 minutes to render on screen.
+`--parse`: Parse CSV files into neo4j database without launching app
+`-a` or `--airodump-csv`: Airodump-ng formatted CSV
 
 ## Screenshots
 ![Logo](examples/ui.png "BeaconGraph UI")
