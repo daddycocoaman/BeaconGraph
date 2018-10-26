@@ -79,10 +79,12 @@ def cpg(graph, stationDict, bssidDict):
         if len(essid) == 0:
             essid = bssid
         
-        try:
-            oui = mac.get_comment(bssid)
-        except:
-            oui = mac.get_manuf(bssid)
+        lookup = mac.get_all(bssid)
+        if lookup[1] is not None:
+            oui = lookup[1]
+        else:
+            oui = lookup[0]
+
         if oui is None:
             oui = "Private"
         
@@ -111,10 +113,12 @@ def cpg(graph, stationDict, bssidDict):
         else:
             bssid = None
 
-        try:
-            oui = mac.get_comment(station)
-        except:
-            oui = mac.get_manuf(station)
+        lookup = mac.get_all(station)
+        if lookup[1] is not None:
+            oui = lookup[1]
+        else:
+            oui = lookup[0]
+            
         if oui is None:
             oui = "Private"
 
