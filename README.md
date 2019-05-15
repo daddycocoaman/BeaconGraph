@@ -32,7 +32,3 @@ python3.7 BeaconGraph.py
 
 ## Screenshots
 ![Logo](examples/ui.png "BeaconGraph UI")
-
-## License
-This project is 100% open source. Use this code as you wish (except commercially) but please attribute to author and respect all licenses of third-party code. 
-
