@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.69 - 2019-05-15
+- Complete overhaul of BeaconGraph. Now uses Dash Cytoscape as the graph renderer inside of PyQt5 widgets.
+- Removed all command line options. Interaction is now done via GUI.
+- OUI parsing is now done via https://macaddress.io provided database.
+
 ## v0.2 - 2018-10-20
 
 ### Added
