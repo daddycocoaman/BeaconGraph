@@ -1,6 +1,6 @@
 # BEACONGRAPH (v0.69)
 
-<p align='center'><img src='https://raw.githubusercontent.com/daddycocoaman/BeaconGraph/master/static/images/logo400.png' alt='logo'/></p>
+<p align='center'><img src='examples/logo400.png' alt='logo'/></p>
 
 ## Description
 BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. It is written in Python 3.7 using [Dash](https://dash.plot.ly/)  and a [Neo4j](https://github.com/neo4j/neo4j) backend. Dash has a [cytoscape.js](https://github.com/cytoscape/cytoscape.js) implementation and is served by Flask.
