@@ -30,5 +30,11 @@ pip3 install -r requirements.txt
 python3.7 BeaconGraph.py
 ```
 
+As root:
+```
+python3.7 BeaconGraph.py --no-sandbox
+```
+BeaconGraph uses QWebEngineView, which in turn uses Chromium. Therefore, in order to run BeaconGraph as root, you need to add the `--no-sandbox` argument to the command line.
+
 ## Screenshots
 ![Logo](examples/ui.png "BeaconGraph UI")

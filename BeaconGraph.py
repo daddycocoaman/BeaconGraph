@@ -43,14 +43,16 @@ class Beacongraph():
                         'style': {
                             'content': 'data(name)',
                             'color': 'white',
+                            'font-family': 'Fira Mono',
                             'font-size': 12,
                             'text-valign': 'bottom',
                             'text-halign': 'center',
                             'background-fit': 'contain',
                             'background-clip': 'none',
-                            'padding': 10,
                             'text-background-color': '#00001a',
                             'text-background-opacity': 0.7,
+                            'text-background-padding': 2,
+                            'text-background-shape': 'roundrectangle',
                             'min-zoomed-font-size': 8 
                         }
                     }, 
@@ -321,7 +323,7 @@ class Beacongraph():
             return ""
 
 if __name__ == '__main__':
-    qt_app  = QApplication([])
+    qt_app  = QApplication(sys.argv)
     form = Form()
     form.show()
     qt_app.exec_()

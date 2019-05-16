@@ -41,8 +41,8 @@ class Form(QDialog):
         super(Form,self).__init__(parent)
         self.LOGGEDIN = False
         self.setWindowIcon(QIcon("assets/logo.png"))
-        #self.setWindowTitle("Beacongraph")
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        self.setWindowTitle("Beacongraph")
+        #self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
 
         self.logo = QPixmap('assets/logo300.png')
         self.picLabel = QLabel(self)
