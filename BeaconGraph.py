@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from bg_gui import Form, BeaconView
 
-class Beacongraph():
+class BeaconGraph():
     def __init__(self, neo, parent=None):
         self.app = dash.Dash("BeaconGraph")
         self.app.title = "BeaconGraph"
@@ -332,7 +332,7 @@ if __name__ == '__main__':
         pass
 
     if form.LOGGEDIN:
-        bg = Beacongraph(form.neo)
+        bg = BeaconGraph(form.neo)
         thread = threading.Thread(target=bg.app.run_server, kwargs={'host':'0.0.0.0', 'port': 9001, 'debug': False, 'threaded': True})
         thread.daemon = True
         thread.start()

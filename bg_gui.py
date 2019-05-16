@@ -41,7 +41,7 @@ class Form(QDialog):
         super(Form,self).__init__(parent)
         self.LOGGEDIN = False
         self.setWindowIcon(QIcon("assets/logo.png"))
-        self.setWindowTitle("Beacongraph")
+        self.setWindowTitle("BeaconGraph")
         #self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
 
         self.logo = QPixmap('assets/logo300.png')
@@ -84,10 +84,8 @@ class Form(QDialog):
         URI = self.uri.text()
         USERNAME = self.username.text()
         PASSWORD = self.password.text()
-        print ("clicked")
         try:
             self.neo = neoHandler(URI, USERNAME, PASSWORD)
-            print ("neo")
             self.LOGGEDIN = True
             self.close()
         except Exception as e:
@@ -98,6 +96,6 @@ class BeaconView(QWebEngineView):
     def __init__(self, url, parent=None):
         super(BeaconView, self).__init__(parent)
         self.setWindowIcon(QIcon("assets/logo.png"))
-        self.setWindowTitle("Beacongraph")
+        self.setWindowTitle("BeaconGraph")
         self.setMinimumSize(1440,900)
         self.load(QUrl(url))
