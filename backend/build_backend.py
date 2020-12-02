@@ -12,7 +12,7 @@ from shiv.bootstrap import Environment
 from shiv.builder import create_archive
 from shiv.cli import __version__ as VERSION
 
-PYZ_NAME = "ssbackend.pyz"
+PYZ_NAME = "beaconbackend.pyz"
 
 
 def build():
