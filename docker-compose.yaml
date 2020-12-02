@@ -1,0 +1,43 @@
+version: "3"
+
+networks:
+  beacongraph-network:
+    driver: "bridge"
+
+services:
+  beacongraph-neo4j:
+    image: neo4j:latest
+    restart: unless-stopped
+    networks:
+      - beacongraph-network
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_dbms_memory_pagecache_size=1G
+      - NEO4J_dbms_memory_heap.initial_size=1G
+      - NEO4J_dbms_memory_heap_max__size=1G
+      - NEO4J_AUTH=neo4j/password
+
+  beacongraph-frontend:
+    build:
+      context: frontend
+    depends_on:
+      - beacongraph-neo4j
+    networks:
+      - beacongraph-network
+    ports:
+      - 9091:9091
+
+  beacongraph-backend:
+    tty: true
+    build:
+      context: backend
+    depends_on:
+      - beacongraph-neo4j
+    networks:
+      - beacongraph-network
+    ports:
+      - 9090:9090
+    environment:
+      - DOCKER_BEACONGRAPH=1
