@@ -15,5 +15,5 @@ RUN python build_backend.py
 
 FROM python:3.8-slim-buster as prod-stage
 WORKDIR /app
-COPY --from=compile-stage /backend/ssbackend.pyz .
+COPY --from=compile-stage /backend/beaconbackend.pyz .
 CMD ["python", "beaconbackend.pyz"]
