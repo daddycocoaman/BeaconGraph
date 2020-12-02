@@ -1,4 +1,4 @@
-# BEACONGRAPH (v0.69)
+# BEACONGRAPH (v1.0.0-beta)
 
 <p align='center'><img src='docs/logo.png' alt='logo' height="400"/></p>
 
