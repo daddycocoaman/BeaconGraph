@@ -29,6 +29,10 @@ By default, the BeaconGraph container will expose the UI on port 9091. The neo4j
 
 The default credentials for neo4j are: **neo4j/password**. You can change this in the `docker-compose` file via the NEO4JAUTH environment variable.
 
+## Usage
+
+Once logged in, you are able to upload data using the "Upload Data" widget. Currently only `airodump-ng` output is supported. After the data is ingested, you can query the database using [Cypher](https://neo4j.com/developer/cypher/intro-cypher/) language. Example queries are available in the Queries tab.
+
 ## Screenshots
 
 ![Logo](docs/screenshot1.png "BeaconGraph UI")
