@@ -32,3 +32,7 @@ The default credentials for neo4j are: **neo4j/password**. You can change this i
 ## Screenshots
 
 ![Logo](docs/screenshot1.png "BeaconGraph UI")
+
+## Bugs
+
+- You may recieve an error or "no results found" if you try to query before an upload of data has finished processing. This should disappear once the ingestion is complete.
