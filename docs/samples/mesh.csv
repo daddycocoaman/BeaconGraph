@@ -1,0 +1,11 @@
+
+BSSID, First time seen, Last time seen, channel, Speed, Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP, ID-length, ESSID, Key
+38:2C:4A:A4:8A:10, 2019-04-10 23:17:05, 2019-04-10 23:35:30, 11, 195, WPA2, CCMP, PSK, -36,      150,      658,   0.  0.  0.  0,  12, Cheesesticks, 
+4C:ED:FB:7D:6C:81, 2019-04-10 23:17:08, 2019-04-10 23:35:30, 11, 195, WPA2, CCMP, PSK, -30,      147,       56,   0.  0.  0.  0,  12, Cheesesticks, 
+
+Station MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs
+4C:ED:FB:7D:6C:81, 2019-04-10 23:17:57, 2019-04-10 23:34:03, -28,        4, 38:2C:4A:A4:8A:10,
+E8:61:7E:6C:6C:CD, 2019-04-10 23:33:34, 2019-04-10 23:33:34,  -1,        1, 38:2C:4A:A4:8A:10,
+00:BB:C1:BC:97:97, 2019-04-10 23:17:12, 2019-04-10 23:35:26, -48,       24, 4C:ED:FB:7D:6C:81,
+A4:77:33:04:DB:DB, 2019-04-10 23:17:05, 2019-04-10 23:34:59, -30,      664, 38:2C:4A:A4:8A:10,Cheesesticks
+

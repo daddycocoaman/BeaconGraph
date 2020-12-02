@@ -1,40 +1,34 @@
 # BEACONGRAPH (v0.69)
 
-<p align='center'><img src='examples/logo400.png' alt='logo'/></p>
+<p align='center'><img src='docs/logo.png' alt='logo' height="400"/></p>
 
 ## Description
-BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. It is written in Python 3.7 using [Dash](https://dash.plot.ly/)  and a [Neo4j](https://github.com/neo4j/neo4j) backend. Dash has a [cytoscape.js](https://github.com/cytoscape/cytoscape.js) implementation and is served by Flask.
 
-## Prerequisites
+BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. The frontend is written in Vue and the backend in Python 3.8. Data is parsed into a [Neo4j](https://github.com/neo4j/neo4j) database.
 
-- Python >= 3.7
-- Neo4j
+# Installation
 
-Python 3.7 version is important, as some functionality will not work with older versions.
+## With Docker
 
-## Installation
-
-Because PyQt5 versions change a lot in their minor versions, it is highly recommended that you run BeaconGraph in its own virtual environment in order to avoid interference with existing packages.
-```
-pipenv --python 3.7
-pipenv shell
-pip3 install -r requirements.txt
-```
-
-## Acceptable CSV Formats
-- airodump-ng
-
-## Usage
+Most users may find it easier to install Beacongraph via Docker. This is the recommended method.
 
 ```
-python3.7 BeaconGraph.py
+git clone https://github.com/daddycocoaman/BeaconGraph
+docker-compose up
 ```
 
-As root:
-```
-python3.7 BeaconGraph.py --no-sandbox
-```
-BeaconGraph uses QWebEngineView, which in turn uses Chromium. Therefore, in order to run BeaconGraph as root, you need to add the `--no-sandbox` argument to the command line.
+The `docker-compose` file will create three containers:
+
+- Frontend
+- Backend
+- Neo4j v4
+
+By default, the BeaconGraph container will expose the UI on port 9091. The neo4j container will expose neo4j on ports 7474 (HTTP), and 7687 (Bolt). You may initially interact directly with the neo4j interface on port 7474.
+
+**Note**: Currently, BeaconGraph only supports running these containers locally. Attempting to upload to the frontend hosted remotely will be unsuccessful but this behavior is expected to change in the future.
+
+The default credentials for neo4j are: **neo4j/password**. You can change this in the `docker-compose` file via the NEO4JAUTH environment variable.
 
 ## Screenshots
-![Logo](examples/ui.png "BeaconGraph UI")
+
+![Logo](docs/screenshot1.png "BeaconGraph UI")
