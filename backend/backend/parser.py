@@ -206,7 +206,7 @@ class AirodumpProcessor:
                     )
 
     async def parseUpload(self, content: bytes):
-        if content.startswith(b"\r\nBSSID, First time seen, Last time seen, channel"):
+        if b"BSSID, First time seen, Last time seen, channel" in content:
             logger.info("Airodump received!")
             bDict, sDict = await self._parseAirodump(content)
             await self._insertAirodumpNodes(bDict, sDict)
