@@ -12,7 +12,7 @@
   "dependencies": {
     "@quasar/cli": "^1.1.2",
     "@quasar/extras": "^1.9.5",
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "bl": "^4.0.3",
     "core-js": "^3.6.5",
     "cytoscape-cola": "^2.4.0",
