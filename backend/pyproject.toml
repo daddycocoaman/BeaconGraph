@@ -14,7 +14,7 @@ loguru = "^0.5.1"
 python-multipart = "^0.0.5"
 shiv = "^0.3.0"
 pandas = "^1.1.4"
-numpy = "1.19.3"
+numpy = "1.22.0"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
