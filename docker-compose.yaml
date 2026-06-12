@@ -1,12 +1,10 @@
-version: "3"
-
 networks:
   beacongraph-network:
     driver: "bridge"
 
 services:
   beacongraph-neo4j:
-    image: neo4j:latest
+    image: neo4j:4.4-community
     restart: unless-stopped
     networks:
       - beacongraph-network
@@ -22,6 +20,9 @@ services:
   beacongraph-frontend:
     build:
       context: frontend
+      dockerfile: dockerfile
+      args:
+        VUE_APP_UPLOAD_URL: http://beacongraph-backend:9090/api/upload
     depends_on:
       - beacongraph-neo4j
     networks:
@@ -33,6 +34,7 @@ services:
     tty: true
     build:
       context: backend
+      dockerfile: dockerfile
     depends_on:
       - beacongraph-neo4j
     networks:
@@ -41,3 +43,4 @@ services:
       - 9090:9090
     environment:
       - DOCKER_BEACONGRAPH=1
+      - BEACONGRAPH_RELOAD=0

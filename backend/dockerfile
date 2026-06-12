@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster as compile-stage
+FROM python:3.11-slim AS prod-stage
 
 ENV PYTHONFAULTHANDLER=1 \
   PYTHONHASHSEED=random \
@@ -7,13 +7,12 @@ ENV PYTHONFAULTHANDLER=1 \
   PIP_DISABLE_PIP_VERSION_CHECK=1 \
   PIP_NO_CACHE_DIR=1
 
-WORKDIR /backend
-RUN python -m pip install shiv
-
-COPY . .
-RUN python build_backend.py
-
-FROM python:3.8-slim-buster as prod-stage
 WORKDIR /app
-COPY --from=compile-stage /backend/beaconbackend.pyz .
-CMD ["python", "beaconbackend.pyz"]
+
+COPY pyproject.toml poetry.lock app.py ./
+COPY backend ./backend
+
+RUN python -m pip install --upgrade pip && python -m pip install .
+
+EXPOSE 9090
+CMD ["python", "app.py"]

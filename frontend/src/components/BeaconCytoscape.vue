@@ -24,7 +24,7 @@ import coseBilkent from "cytoscape-cose-bilkent";
 import dagre from "cytoscape-dagre";
 import cola from "cytoscape-cola";
 import klay from "cytoscape-klay";
-import { isNode, isRelationship } from "neo4j-driver/lib/graph-types.js";
+import { isNode, isRelationship } from "src/utils/neo4jTypes";
 
 let resolveCy = null;
 export const cyPromise = new Promise((resolve) => (resolveCy = resolve));
@@ -50,6 +50,7 @@ export default {
           cy.layout(this.layoutMode).run();
           cy.center();
           cy.fit(null, 200);
+          cy.minZoom(0.1);
           cy.maxZoom(2);
         });
       }
@@ -60,6 +61,7 @@ export default {
       cy.center();
 
       cy.fit(null, 200);
+      cy.minZoom(0.1);
       cy.maxZoom(2);
     },
   },
@@ -80,6 +82,8 @@ export default {
     },
     async afterCreated(cy) {
       const store = this.$store;
+      cy.minZoom(0.1);
+      cy.maxZoom(4);
       let defaults = {
         menuRadius: 100, // the radius of the circular menu in pixels
         selector: "node", // elements matching this Cytoscape.js selector will trigger cxtmenus

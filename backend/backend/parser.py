@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -37,7 +38,7 @@ class AirodumpProcessor:
     async def _cleanup(self, data, station=False):
         # Airodump format is dirty. Clean up for proper parsing.
         cleanList = []
-        lines = data.split("\n")
+        lines = [line for line in data.split("\n") if line.strip()]
         headers = list(map(str.strip, lines[0].split(",")))
 
         cleanList.append(",".join(headers))
@@ -57,17 +58,21 @@ class AirodumpProcessor:
         return "\n".join(cleanList)
 
     async def _parseAirodump(self, decoded):
+        normalized = decoded.replace(b"\r\n", b"\n").decode(errors="ignore").strip()
+        sections = re.split(r"\n\s*\n", normalized, maxsplit=2)
+        if len(sections) < 2:
+            raise ValueError("Unexpected airodump CSV layout")
 
-        bssidData, stationData, _ = decoded.split(b"\r\n\r\n")
+        bssidData, stationData = sections[:2]
 
         # Clean up AP table
         logger.info("Cleaning BSSID data!")
-        bssidData = await self._cleanup(bssidData.decode())
+        bssidData = await self._cleanup(bssidData)
         bssidDF = pd.read_csv(io.StringIO(bssidData), header=0)
 
         # Clean up client tables
         logger.info("Cleaning station data!")
-        stationData = await self._cleanup(stationData.decode(), station=True)
+        stationData = await self._cleanup(stationData, station=True)
         stationDF = pd.read_csv(io.StringIO(stationData), quotechar="|", header=0)
 
         # Change N/A to empty strings. Create dictionaries.
@@ -212,6 +217,7 @@ class AirodumpProcessor:
             await self._insertAirodumpNodes(bDict, sDict)
         else:
             logger.error("Not an Airodump file!")
+            raise ValueError("Not an Airodump file")
 
     async def process(self, upload: bytes, filename: str, neo_user: str, neo_pass: str):
 

@@ -11,6 +11,81 @@
             size="lg"
             padding="none none"
             color="white"
+            icon="add"
+            @click="zoomIn"
+          >
+            <q-tooltip
+              transition-show="fade"
+              transition-hide="fade"
+              self="center left"
+              anchor="center right"
+              content-class="tooltip"
+              class="bg-indigo-10"
+              >Zoom In<br />
+            </q-tooltip>
+          </q-btn>
+        </q-item-section>
+      </q-item>
+      <q-item class="shadow-10">
+        <q-item-section>
+          <q-btn
+            flat
+            push
+            outline
+            dense
+            size="lg"
+            padding="none none"
+            color="white"
+            icon="remove"
+            @click="zoomOut"
+          >
+            <q-tooltip
+              transition-show="fade"
+              transition-hide="fade"
+              self="center left"
+              anchor="center right"
+              content-class="tooltip"
+              class="bg-indigo-10"
+              >Zoom Out<br />
+            </q-tooltip>
+          </q-btn>
+        </q-item-section>
+      </q-item>
+      <q-item class="shadow-10">
+        <q-item-section>
+          <q-btn
+            flat
+            push
+            outline
+            dense
+            size="lg"
+            padding="none none"
+            color="white"
+            icon="center_focus_strong"
+            @click="fitGraph"
+          >
+            <q-tooltip
+              transition-show="fade"
+              transition-hide="fade"
+              self="center left"
+              anchor="center right"
+              content-class="tooltip"
+              class="bg-indigo-10"
+              >Fit Graph To View<br />
+            </q-tooltip>
+          </q-btn>
+        </q-item-section>
+      </q-item>
+      <q-item class="shadow-10">
+        <q-item-section>
+          <q-btn
+            flat
+            push
+            outline
+            dense
+            size="lg"
+            padding="none none"
+            color="white"
             icon="insert_chart"
             @click="changeMode"
           >
@@ -58,6 +133,7 @@
 
 <script>
 import { mapState } from "vuex";
+import { cyPromise } from "./BeaconCytoscape";
 
 export default {
   name: "MenuBar",
@@ -105,6 +181,33 @@ export default {
     this.$store.commit("changeMode", this.modes[0]);
   },
   methods: {
+    async zoomIn() {
+      const cy = await cyPromise;
+      cy.zoom({
+        level: Math.min(cy.maxZoom(), cy.zoom() * 1.2),
+        renderedPosition: {
+          x: cy.width() / 2,
+          y: cy.height() / 2,
+        },
+      });
+      cy.center();
+    },
+    async zoomOut() {
+      const cy = await cyPromise;
+      cy.zoom({
+        level: Math.max(cy.minZoom(), cy.zoom() / 1.2),
+        renderedPosition: {
+          x: cy.width() / 2,
+          y: cy.height() / 2,
+        },
+      });
+      cy.center();
+    },
+    async fitGraph() {
+      const cy = await cyPromise;
+      cy.center();
+      cy.fit(null, 200);
+    },
     changeMode() {
       this.curMode++;
       if (this.curMode === this.modes.length) {
