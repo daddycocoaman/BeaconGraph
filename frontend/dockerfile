@@ -1,9 +1,24 @@
-FROM node:12-alpine
-ENV VUE_APP_UPLOAD_URL=http://beacongraph-backend:9090/api/upload
+FROM node:14-bullseye AS build-stage
+
+ARG VUE_APP_UPLOAD_URL=http://beacongraph-backend:9090/api/upload
+ENV VUE_APP_UPLOAD_URL=$VUE_APP_UPLOAD_URL
 
 WORKDIR /usr/src/app
-RUN npm install -g @quasar/cli
 
-COPY dist/spa .
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts \
+	&& rm -rf node_modules/node-sass \
+	&& npm install --no-save sass@1.32.13
+
+COPY . .
+RUN npx quasar build
+
+FROM node:14-bullseye-slim AS prod-stage
+
+WORKDIR /srv/beacongraph
+RUN npm install -g serve
+
+COPY --from=build-stage /usr/src/app/dist/spa ./
+
 EXPOSE 9091
-CMD ["quasar", "serve", "-p", "9091", "--history"]
+CMD ["serve", "-s", ".", "-l", "9091"]

@@ -5,20 +5,20 @@ description = ""
 authors = ["Leron Gray <legra@microsoft.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-fastapi = "^0.61.0"
-uvicorn = "^0.11.8"
-neo4j = "^4.1.0"
-orjson = "^3.3.0"
-loguru = "^0.5.1"
-python-multipart = "^0.0.5"
-shiv = "^0.3.0"
-pandas = "^1.1.4"
-numpy = "1.19.3"
+python = ">=3.11,<3.13"
+fastapi = "^0.115.0"
+uvicorn = "^0.30.0"
+neo4j = "^5.25.0"
+orjson = "^3.10.0"
+loguru = "^0.7.2"
+python-multipart = "^0.0.20"
+shiv = "^1.0.8"
+pandas = "^2.2.2"
+numpy = "^1.26.4"
 
 [tool.poetry.dev-dependencies]
-black = "^19.10b0"
-isort = "^5.4.0"
+black = "^24.4.2"
+isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]

@@ -1,11 +1,8 @@
 <template>
   <q-layout>
     <q-page-container>
-      <q-page
-        class="window-height window-width row justify-center items-center"
-        style="background: black; overflow: hidden"
-      >
-        <q-parallax :height="windowHeight">
+      <q-page class="login-page">
+        <q-parallax :height="windowHeight" class="login-hero">
           <template v-slot:media>
             <video width="100%" height="100%" autoplay loop muted>
               <source type="video/mp4" src="goldenstars.mp4" />
@@ -104,7 +101,8 @@ export default {
   name: "Login",
   data() {
     return {
-      windowHeight: 1080,
+      windowHeight:
+        typeof window !== "undefined" ? window.innerHeight : 900,
       server: "bolt://localhost:7687",
       username: "neo4j",
       password: "",
@@ -118,17 +116,19 @@ export default {
     "ssneo4j_host",
     "ssneo4j_port",
     "ssneo4j_scheme",
+    "ss_remember",
   ]),
 
   created() {
     this.$nextTick(() => {
+      this.onResize();
       window.addEventListener("resize", this.onResize);
     });
 
     if (
       this.ssneo4j_user &&
       this.ssneo4j_pass &&
-      this.$store.getters.isLoggedIn
+      this.ss_remember === "true"
     ) {
       this.$neo4j.connect(
         this.ssneo4j_scheme,
@@ -140,10 +140,16 @@ export default {
 
       const session = this.$neo4j.getSession();
 
-      session.run("MATCH () RETURN 1 LIMIT 1").then((driver) => {
-        this.$store.dispatch("loggedIn");
-        this.$router.push("/dashboard");
-      });
+      session
+        .run("MATCH () RETURN 1 LIMIT 1")
+        .then(() => {
+          this.$store.dispatch("loggedIn");
+          this.$router.push("/dashboard");
+        })
+        .catch(() => {
+          this.$store.dispatch("logout");
+          this.$q.notify({ color: "red", message: "Saved login is no longer valid" });
+        });
     }
   },
   beforeDestroy() {
@@ -152,7 +158,7 @@ export default {
 
   methods: {
     onResize() {
-      this.windowHeight = window.outerHeight;
+      this.windowHeight = window.innerHeight;
     },
 
     onSubmit() {
@@ -221,6 +227,21 @@ export default {
 </script>
 
 <style lang="sass">
+html, body, #q-app
+  margin: 0
+  min-height: 100%
+
+body
+  color: grey !important
+
+.login-page
+  background: black
+  overflow: hidden
+
+.login-hero
+  width: 100%
+  min-height: 100vh
+
 body
   color: grey !important
 

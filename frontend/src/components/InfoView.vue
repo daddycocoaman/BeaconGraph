@@ -1,55 +1,65 @@
 <template>
-  <div>
-    <div class="row q-pa-none q-ma-none">
-      <codemirror
-        v-if="rawData"
-        ref="cmRaw"
-        v-model="eleRawData"
-        :options="cmOptions"
-        style="width: 100%"
-      ></codemirror>
-      <!-- <q-input
-        v-if="rawData"
-        v-model="eleRawData"
-        style="width: 400px;"
-        filled
-        autogrow
-      /> -->
-      <q-table
-        :columns="infoColumns"
-        :data="eleData"
-        :pagination="pagination"
-        :rows-per-page-options="[0]"
-        :filter="infoFilter"
-        bordered
-        card-class="bg-black text-white"
-        dark
-        dense
-        hide-bottom
-        hide-pagination
-        no-data-label="No Results"
-        row-key="property"
-        separator="cell"
-        style="max-height: 800px; width: 100%"
-        table-class="text-white hide-scroll"
-        table-header-class="text-white text-h4"
-        v-else
-        virtual-scroll
+  <div class="info-view">
+    <q-list class="info-sections">
+      <q-expansion-item
+        class="info-section"
+        dense-toggle
+        default-opened
+        expand-separator
+        label="Selected Element Details"
       >
-        <template v-slot:top-left>
-          <q-input
+        <div class="row q-pa-none q-ma-none">
+          <codemirror
+            v-if="rawData"
+            ref="cmRaw"
+            v-model="eleRawData"
+            :options="cmOptions"
+            style="width: 100%"
+          ></codemirror>
+          <!-- <q-input
+            v-if="rawData"
+            v-model="eleRawData"
+            style="width: 400px;"
+            filled
+            autogrow
+          /> -->
+          <q-table
+            :columns="infoColumns"
+            :data="eleData"
+            :pagination="pagination"
+            :rows-per-page-options="[0]"
+            :filter="infoFilter"
+            bordered
+            card-class="bg-black text-white"
+            dark
             dense
-            debounce="300"
-            v-model="infoFilter"
-            placeholder="Search"
+            hide-bottom
+            hide-pagination
+            no-data-label="No Results"
+            row-key="property"
+            separator="cell"
+            style="max-height: 800px; width: 100%"
+            table-class="text-white hide-scroll"
+            table-header-class="text-white text-h4"
+            v-else
+            virtual-scroll
           >
-            <template v-slot:prepend>
-              <q-icon name="search" color="white" />
+            <template v-slot:top-left>
+              <q-input
+                dense
+                debounce="300"
+                v-model="infoFilter"
+                placeholder="Search"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="search" color="white" />
+                </template>
+              </q-input>
             </template>
-          </q-input>
-        </template>
-      </q-table>
-    </div>
+          </q-table>
+        </div>
+      </q-expansion-item>
+    </q-list>
   </div>
 </template>
 
@@ -161,3 +171,16 @@ export default {
   },
 };
 </script>
+
+<style lang="sass">
+.info-view
+  width: 100%
+
+.info-sections
+  background-color: transparent
+
+.info-section
+  background-color: $indigo-10
+  color: white
+  border-radius: 2px
+</style>

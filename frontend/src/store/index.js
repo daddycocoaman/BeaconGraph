@@ -5,7 +5,7 @@ import Vuex from "vuex";
 import VueCytoscape from "vue-cytoscape";
 import VueNeo4j from "vue-neo4j";
 import { uniqBy, filter } from "lodash";
-import { isNode, isRelationship } from "neo4j-driver/lib/graph-types.js";
+import { isNode, isRelationship } from "src/utils/neo4jTypes";
 
 Vue.use(VueCytoscape);
 Vue.use(VueNeo4j);
@@ -76,6 +76,11 @@ export default function (/* { ssrContext } */) {
       updateNodeSummary(state, stats) {
         state.currentNodeSummary = stats;
       },
+      resetGraphState(state) {
+        state.cyElements = [];
+        state.currentElement = undefined;
+        state.currentNodeSummary = [];
+      },
       setLoggedIn(state, value) {
         state.isLoggedIn = value;
       },
@@ -107,7 +112,7 @@ export default function (/* { ssrContext } */) {
         return state.layoutMode;
       },
       cyElements: (state) => {
-        return state.cyNodes;
+        return state.cyElements;
       },
       currentElement: (state) => {
         return state.currentElement;
@@ -132,6 +137,9 @@ export default function (/* { ssrContext } */) {
       },
       currentNodeSummary({ commit }, payload) {
         commit("updateNodeSummary", payload);
+      },
+      clearGraphState({ commit }) {
+        commit("resetGraphState");
       },
 
       makeQueryElements({ commit, state }, payload) {

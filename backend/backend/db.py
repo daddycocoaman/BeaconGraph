@@ -36,7 +36,9 @@ class Neo4j:
 
     def updateLabels(self):
         result = self.query("MATCH (n) RETURN DISTINCT labels(n) as labels", True)
-        self.labels = sorted(set(lbl for lbls in result.value() for lbl in lbls))
+        self.labels = sorted(
+            set(lbl for row in result for lbl in row.get("labels", []))
+        )
 
     def updateKeys(self):
         result = self.query(
@@ -47,7 +49,7 @@ class Neo4j:
                             RETURN DISTINCT label, COLLECT(distinct key) AS props""",
             True,
         )
-        self.keys = result.data()
+        self.keys = result
 
     def get_graph_driver(self, url, username, password) -> GraphDatabase:
         """ sets up graph client """
@@ -55,7 +57,7 @@ class Neo4j:
             auth = None
             if username and password:
                 auth = (username, password)
-            self.driver = GraphDatabase.driver(url, auth=auth, encrypted=False)
+            self.driver = GraphDatabase.driver(url, auth=auth)
         except AuthError:
             logger.error("Could not authenticate to Neo4j database server")
         except Exception:
@@ -100,7 +102,11 @@ class Neo4j:
         """ create indexes for faster lookup """
         for label, value in inspect.getmembers(labels):
             if "NODE_LABEL" in label:
-                statement = "CREATE INDEX ON : " + value + "(id)"
+                index_name = f"idx_{value.lower()}_id"
+                statement = (
+                    f"CREATE INDEX {index_name} IF NOT EXISTS "
+                    f"FOR (node:{value}) ON (node.id)"
+                )
                 try:
                     self.query(statement)
                 except ClientError:
@@ -147,33 +153,34 @@ class Neo4j:
     write_lock = threading.Lock()
 
     def dbSummary(self):
-        countQuery = self.query(
+        count_query = self.query(
             "MATCH (n) RETURN count(labels(n)) AS count, labels(n) AS labels", True
         )
-        return countQuery
+        return count_query
 
     def deleteDB(self):
         self.query("MATCH (n) DETACH DELETE n")
 
     def query(self, statement, requested=False):
         """ execute a query into the graph """
-        self.write_lock.acquire()
         result = ""
-        try:
-            with self.driver.session() as session:
-                result = session.run(statement)
-        except ClientError as e:
-            if str(e.message).startswith("An equivalent index"):
-                raise
-            logger.error(e)
-            logger.error("[=] Failed to insert new document. Trying again.")
-            self.get_graph_driver(self.server, self.user, self.password)
-            self.session.run(statement)
+        with self.write_lock:
+            try:
+                with self.driver.session() as session:
+                    response = session.run(statement)
+                    result = response.data() if requested else response.consume()
+            except ClientError as e:
+                if "equivalent index" in str(e).lower() or "already exists" in str(e).lower():
+                    raise
+                logger.error(e)
+                logger.error("[=] Failed to execute query. Trying again.")
+                self.get_graph_driver(self.server, self.user, self.password)
+                with self.driver.session() as session:
+                    response = session.run(statement)
+                    result = response.data() if requested else response.consume()
 
-        finally:
-            self.write_lock.release()
-            if result and requested:
-                return result
+        if requested:
+            return result
 
     def __del__(self):
         self.shutdown()
