@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+## v1.0.0-beta - 2026-09-16
+
+- Introduced CLI parser for PCAP files produced by airodump-ng and support for direct export to a Neo4j / ArcadeDB database
+
 ## v1.0.0-beta - 2020-12-01
 
 - Another complete overhaul of BeaconGraph. New frontend, backend, and deployed via Docker.

@@ -5,7 +5,7 @@ description = ""
 authors = ["Leron Gray <legra@microsoft.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+python = ">=3.11,<4.0"
 fastapi = "^0.115.0"
 uvicorn = "^0.30.0"
 neo4j = "^5.25.0"
@@ -14,7 +14,8 @@ loguru = "^0.7.2"
 python-multipart = "^0.0.20"
 shiv = "^1.0.8"
 pandas = "^2.2.2"
-numpy = "^1.26.4"
+numpy = ">=1.26"
+requests = "^2.31.0"
 
 [tool.poetry.dev-dependencies]
 black = "^24.4.2"

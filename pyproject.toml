@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "beacongraph-cli"
+version = "0.1.0"
+description = "Standalone CLI to parse 802.11 packet captures or airodump-ng CSVs directly into a Neo4j or ArcadeDB database."
+authors = ["Leron Gray <lgray@bishopfox.com>", "vexance <dgarlak@bishopfox.com>"]
+packages = [
+    { include = "cli.py" },
+    { include = "cli_csv.py" },
+    { include = "pcap" },
+]
+include = ["pcap/data/*.yaml"]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+neo4j = "^5.25.0"
+loguru = "^0.7.2"
+scapy = "^2.6.0"
+pyyaml = "^6.0"
+backend = { path = "backend" }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+
+[tool.poetry.scripts]
+beacongraph-cli = "cli:main"
+#beacongraph-cli-csv = "cli_csv:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0a5"]
+build-backend = "poetry.core.masonry.api"
