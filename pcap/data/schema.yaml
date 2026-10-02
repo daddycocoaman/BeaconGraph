@@ -1,0 +1,119 @@
+# BeaconGraph pcap vertex and edge schema
+#
+# Single source of truth for the graph types the pcap ingestion path writes: their
+# inheritance, their frontend styling, and the index DDL generated for Neo4j and ArcadeDB.
+# Replaces the hardcoded statement generators in backend/backend/arcadedb.py for this path.
+#
+# Keys per vertex entry:
+#   label      required. Unique across the document.
+#   icon_type  required. Icon family.
+#   icon_name  required. Icon within that family.
+#   color      required. Hex, quoted.
+#   children   optional. Nested labels whose parent is this one. Nesting IS the lineage.
+#   extends    optional. Additional parent labels beyond the nesting parent. Unused today.
+#   abstract   optional. Declared and indexed, but never a node's own type.
+#
+# `AP` is a concrete parent, not an abstract one: the five encryption types nest under it so
+# that `MATCH (a:AP)` means "every access point", but `AP` is itself written whenever the
+# capture never yielded an RSN/WPA element to classify the radio by (`crypto.py`'s node_type
+# falls back to it). An AP node therefore means "encryption undetermined", and the subtypes
+# mean "determined, and this is it".
+#
+# `Handshake` is concrete for exactly the same reason, and it is worth stating why the four
+# subtypes split on the AKM rather than on the exchange. What an operator asks a handshake is
+# "can this crack", and that is decided by where the PMK came from: PBKDF2 over a passphrase
+# (WPA/WPA2, FT-PSK included) or something else entirely - dragonfly for SAE, EAP for 802.1X,
+# Diffie-Hellman for OWE. An 802.11r roam is a different *exchange* carrying the same kind of
+# credential, so it is a property on the node (`exchange`), not a type. Splitting on the
+# exchange instead would make "is this crackable" two questions rather than one.
+#
+# Ordering: labels are alphabetical within each level. Generators emit CREATE VERTEX TYPE
+# ancestors-first (a type cannot extend a parent that does not exist yet) and index DDL
+# deepest-first (ArcadeDB rejects a subtype index once an ancestor owns one on the same
+# property; Neo4j uses creation order for browser caption priority, and the root should
+# lose that contest to every more specific label).
+#
+# Version is compared against the packaged copy on load; a mismatch warns rather than
+# overwriting a locally customised file.
+
+version: 4
+
+vertices:
+  - label: Device
+    abstract: true
+    icon_type: font-awesome
+    icon_name: wifi
+    color: '#565254'
+    children:
+      - label: AP
+        icon_type: font-awesome
+        icon_name: tower-broadcast
+        color: '#00FFD9'
+        children:
+          - label: Open
+            icon_type: font-awesome
+            icon_name: lock-open
+            color: '#FFFFFF'
+          - label: WEP
+            icon_type: font-awesome
+            icon_name: triangle-exclamation
+            color: '#D9534F'
+          - label: WPA
+            icon_type: font-awesome
+            icon_name: lock
+            color: '#F0E68C'
+          - label: WPA2
+            icon_type: font-awesome
+            icon_name: lock
+            color: '#F0AD4E'
+          - label: WPA3
+            icon_type: font-awesome
+            icon_name: shield-halved
+            color: '#FF69B4'
+      - label: Client
+        icon_type: font-awesome
+        icon_name: laptop
+        color: '#5CB85C'
+      - label: Handshake
+        icon_type: font-awesome
+        icon_name: handshake
+        color: '#E67E22'
+        children:
+          - label: OWEHandshake
+            icon_type: font-awesome
+            icon_name: unlock
+            color: '#48C9B0'
+          - label: WPA2Handshake
+            icon_type: font-awesome
+            icon_name: handshake
+            color: '#E67E22'
+          - label: WPA3Handshake
+            icon_type: font-awesome
+            icon_name: handshake-angle
+            color: '#FF69B4'
+          - label: WPAHandshake
+            icon_type: font-awesome
+            icon_name: handshake
+            color: '#F0E68C'
+      - label: SSID
+        icon_type: font-awesome
+        icon_name: tag
+        color: '#7FB3D5'
+      - label: TLSCertificate
+        icon_type: font-awesome
+        icon_name: certificate
+        color: '#9B59B6'
+      - label: WPS
+        icon_type: font-awesome
+        icon_name: key
+        color: '#16A085'
+
+edges:
+  - type: Associated
+  - type: Broadcasts
+  - type: Deauthenticated
+  - type: Exposes
+  - type: IssuedBy
+  - type: Negotiated
+  - type: Presented
+  - type: Probes

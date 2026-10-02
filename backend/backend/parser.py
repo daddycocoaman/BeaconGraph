@@ -31,6 +31,12 @@ def macLookup(bssid):
     return
 
 
+# Marks an airodump-ng CSV's AP table header. Used by parseUpload() to sniff the file format,
+# and by non-Neo4j callers (e.g. the ArcadeDB CLI path) that need the same check without going
+# through parseUpload()'s Neo4j-specific write path.
+AIRODUMP_SNIFF_TOKEN = b"BSSID, First time seen, Last time seen, channel"
+
+
 class AirodumpProcessor:
     def __init__(self) -> None:
         self.neo = None
@@ -82,120 +88,84 @@ class AirodumpProcessor:
         sDict = stationDF.to_dict(orient="records")
         return (bDict, sDict)
 
-    async def _insertAirodumpNodes(self, bDict, sDict):
-        bssidNodes, stationNodes = [], []
+    def _classifyBssid(self, entry: dict) -> dict:
+        """Classify one airodump-ng AP-table row into a typed BSSID node dict."""
+        bssid = entry["BSSID"]
+        essid = entry["ESSID"]
+        speed = entry["Speed"]
+        channel = entry["channel"]
+        auth = entry["Authentication"]
+        cipher = entry["Cipher"]
+        lan = entry["LAN IP"].replace(" ", "")
+        priv = entry["Privacy"]
 
+        if lan == "0.0.0.0":
+            lan = ""
+
+        if len(essid) == 0:
+            essid = bssid
+
+        oui = macLookup(bssid)
+
+        if "WPA2" in priv:
+            nodeType, encryption = "WPA2", "WPA2"
+        elif "WPA" in priv:
+            nodeType, encryption = "WPA", "WPA"
+        elif "WEP" in priv:
+            nodeType, encryption = "WEP", "WEP"
+        elif "OPN" in priv:
+            nodeType, encryption = "Open", "Open"
+        else:
+            nodeType, encryption = "AP", "None"
+
+        return {
+            "Type": nodeType,
+            "Name": essid,
+            "BSSID": bssid,
+            "OUI": oui,
+            "Encryption": encryption,
+            "Speed": speed,
+            "Channel": channel,
+            "Auth": auth,
+            "Cipher": cipher,
+            "LAN": lan,
+        }
+
+    def _classifyStation(self, entry: dict) -> dict:
+        """Classify one airodump-ng station-table row into a Client node dict."""
+        station = entry["Station MAC"]
+        fts = entry["First time seen"]
+        lts = entry["Last time seen"]
+        pwr = entry["Power"]
+        pkts = entry["# packets"]
+        oui = macLookup(station)
+
+        return {
+            "Type": "Client",
+            "Name": station,
+            "FirstTimeSeen": fts,
+            "LastTimeSeen": lts,
+            "Power": pwr,
+            "Packets": pkts,
+            "OUI": oui,
+        }
+
+    async def _insertAirodumpNodes(self, bDict, sDict):
         logger.info("Inserting BSSID nodes!")
         for entry in bDict:
-            bssid = entry["BSSID"]
-            essid = entry["ESSID"]
-            speed = entry["Speed"]
-            channel = entry["channel"]
-            auth = entry["Authentication"]
-            cipher = entry["Cipher"]
-            lan = entry["LAN IP"].replace(" ", "")
-            priv = entry["Privacy"]
-
-            if lan == "0.0.0.0":
-                lan = ""
-
-            if len(essid) == 0:
-                essid = bssid
-
-            oui = macLookup(bssid)
-
-            if "WPA2" in priv:
-                bNode = {
-                    "Type": "WPA2",
-                    "Name": essid,
-                    "BSSID": bssid,
-                    "OUI": oui,
-                    "Encryption": "WPA2",
-                    "Speed": speed,
-                    "Channel": channel,
-                    "Auth": auth,
-                    "Cipher": cipher,
-                    "LAN": lan,
-                }
-            elif "WPA" in priv:
-                bNode = {
-                    "Type": "WPA",
-                    "Name": essid,
-                    "BSSID": bssid,
-                    "OUI": oui,
-                    "Encryption": "WPA",
-                    "Speed": speed,
-                    "Channel": channel,
-                    "Auth": auth,
-                    "Cipher": cipher,
-                    "LAN": lan,
-                }
-            elif "WEP" in priv:
-                bNode = {
-                    "Type": "WEP",
-                    "Name": essid,
-                    "BSSID": bssid,
-                    "OUI": oui,
-                    "Encryption": "WEP",
-                    "Speed": speed,
-                    "Channel": channel,
-                    "Auth": auth,
-                    "Cipher": cipher,
-                    "LAN": lan,
-                }
-            elif "OPN" in priv:
-                bNode = {
-                    "Type": "Open",
-                    "Name": essid,
-                    "BSSID": bssid,
-                    "OUI": oui,
-                    "Encryption": "Open",
-                    "Speed": speed,
-                    "Channel": channel,
-                    "Auth": auth,
-                    "Cipher": cipher,
-                    "LAN": lan,
-                }
-            else:
-                bNode = {
-                    "Type": "AP",
-                    "Name": essid,
-                    "BSSID": bssid,
-                    "OUI": oui,
-                    "Encryption": "None",
-                    "Speed": speed,
-                    "Channel": channel,
-                    "Auth": auth,
-                    "Cipher": cipher,
-                    "LAN": lan,
-                }
-
+            bNode = self._classifyBssid(entry)
             self.neo.insert_asset(bNode, bNode["Type"], bNode["BSSID"], ["Device"])
 
         # Parse list of clients and add probe relations
         logger.info("Inserting station nodes!")
         for entry in sDict:
             essids = entry["Probed ESSIDs"].split(",")
-            station = entry["Station MAC"]
-            fts = entry["First time seen"]
-            lts = entry["Last time seen"]
-            pwr = entry["Power"]
-            pkts = entry["# packets"]
             if entry["BSSID"] != "(not associated)":
                 bssid = entry["BSSID"]
             else:
                 bssid = None
 
-            oui = macLookup(station)
-            sNode = {
-                "Type": "Client",
-                "Name": station,
-                "FirstTimeSeen": fts,
-                "LastTimeSeen": lts,
-                "Power": pwr,
-                "Packets": pkts,
-                "OUI": oui,
-            }
+            sNode = self._classifyStation(entry)
 
             self.neo.insert_asset(sNode, "Client", sNode["Name"], ["Device"])
 
@@ -211,7 +181,7 @@ class AirodumpProcessor:
                     )
 
     async def parseUpload(self, content: bytes):
-        if b"BSSID, First time seen, Last time seen, channel" in content:
+        if AIRODUMP_SNIFF_TOKEN in content:
             logger.info("Airodump received!")
             bDict, sDict = await self._parseAirodump(content)
             await self._insertAirodumpNodes(bDict, sDict)
@@ -229,7 +199,9 @@ class AirodumpProcessor:
         # TODO: Pass whole neo4j params from frontend or use .env for server
         self.neo = Neo4j(server=server, user=neo_user, password=neo_pass)
         await self.parseUpload(upload)
+        # Scoped the same way as cli_csv.py's NAME_BACKFILL_QUERY - see the comment there.
         self.neo.query(
-            "MATCH (n) WHERE n.Name IS NULL SET n.Name = n.id SET n.Type = 'AP'"
+            "MATCH (n:Device) WHERE n.Name IS NULL AND n.name IS NULL "
+            "SET n.Name = n.id SET n.Type = 'AP'"
         )
         logger.info(f"Completed ingestion of {filename}")

@@ -4,7 +4,7 @@
 
 ## Description
 
-BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. The frontend is written in Vue and the backend in Python 3.8. Data is parsed into a [Neo4j](https://github.com/neo4j/neo4j) database.
+BeaconGraph is an interactive tool that visualizes client and Access Point relationships. Inspired by [airgraph-ng](https://github.com/aircrack-ng/aircrack-ng/tree/master/scripts/airgraph-ng) and [Bloodhound](https://github.com/BloodHoundAD/BloodHound), BeaconGraph aims to support wireless security auditing. The frontend is written in Vue and the backend in Python 3.8. Data is parsed into a [Neo4j](https://github.com/neo4j/neo4j) database. The BeaconGraph CLI supports direct parsing of packet captures produced by airodump-ng into a target Neo4j or [ArcadeDB](https://arcadedb.com/) database.
 
 ## Installation
 
@@ -28,6 +28,38 @@ By default, the BeaconGraph container will expose the UI on port 9091. The neo4j
 **Note**: Currently, BeaconGraph only supports running these containers locally. Attempting to upload to the frontend hosted remotely will be unsuccessful but this behavior is expected to change in the future.
 
 The default credentials for neo4j are: **neo4j/password**. You can change this in the `docker-compose` file via the NEO4JAUTH environment variable.
+
+## Command line ingestion
+
+The CLI writes data straight into a graph (neo4j/arcadedb) database, skipping the web upload and letting you bring your own UI:
+
+```bash
+# Install the CLI with pipx
+git clone github.com/daddycocoaman/BeaconGraph && pipx install ./BeaconGraph
+# Parsing a PCAP into the `mydatabase` DB in ArcadeDB
+beacongraph-cli arcadedb capture-01.cap --database mydatabase
+# Parsing a second PCAP into the DB; --merge required since data is already present
+beacongraph-cli arcadedb another-capture.cap --database mydatabase --merge
+# Exporting PCAP info into the CSV format
+beacongraph-cli export capture-01.cap -o out.csv
+# Neo4j export example
+beacongraph-csv neo4j capture-01.cap
+```
+
+Both accept `--uri`, `-u/--username`, `-p/--password` and `--log-level`. For ArcadeDB export, the default database name is `beacongraph`.
+
+### CSV vs PCAP Parsing
+
+Airodump produces a CSV with its own fifteen-column summary. Reading the packket capture directly can identify additional infomration:
+
+- **WPA3.** The CSV classifier tests `"WPA2" in privacy` then `"WPA" in privacy`, and `"WPA3"` contains `"WPA"` - so a WPA3 network can only ever be reported as WPA. Parsing the RSN element reads the AKM suites directly.
+- **802.11r and management frame protection.** `MGT` in the CSV is 802.1X *and* FT-802.1X flattened together; the `akm` property keeps them apart, and `pmf` records whether protected management frames are disabled, capable or required.
+- **Handshakes.** EAPOL messages are tracked per client-AP pair, so an `Associated` edge can say how much of a 4-way handshake was captured, whether it is enough to attack, and whether a PMKID was recovered.
+- **RADIUS server certificate chains.** On an 802.1X network the authentication server presents its whole X.509 chain before the tunnel closes, so a capture of the first frames of any enterprise association carries the internal PKI - the server identity a client is configured to trust, and every CA vouching for it. This can be interesting to determine seperate wireless networks sharing an authenication backbone.
+- **Deauthentication activity**, with reason codes.
+- **Band and PHY generation** - 2.4/5/6 GHz and 802.11b/g/a/n/ac/ax.
+
+What the capture *cannot* supply, it omits rather than inventing. A capture without a radiotap header carries no signal strength at all, so `power` is simply absent. Ingesting the matching CSV afterwards fills those values in without duplicating anything, because every write is a MERGE that only sets the keys it has.
 
 ## Usage
 
